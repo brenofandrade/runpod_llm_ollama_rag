@@ -1,114 +1,36 @@
-# from langchain_community.document_loaders import PDFPlumberLoader
-# from langchain_text_splitters import RecursiveCharacterTextSplitter
-# from langchain_core.vectorstores import InMemoryVectorStore
-# from langchain_ollama import OllamaEmbeddings
-# from langchain_core.prompts import ChatPromptTemplate
-# from langchain_ollama.llms import OllamaLLM
-
-
-
-from helper import *
-
-PDF_STORAGE_PATH = 'data/'
-# EMBEDDING_MODEL = OllamaEmbeddings(model="deepseek-r1:latest")
-# DOCUMENT_VECTOR_DB = InMemoryVectorStore(EMBEDDING_MODEL)
-# LANGUAGE_MODEL = OllamaLLM(model="deepseek-r1:latest")
-
-
-
-# 
-
-
-
-# DOCUMENT_VECTOR_DB.add_documents(document_chunks)
-    
-
-
-
-### UI Config
-
-
-# import streamlit as st
-
-
-# st.set_page_config(
-#     page_title="Unimed",
-#     page_icon="🤖",
-#     layout="wide"
-# )
-
-# st.title("Chat Unimed 📘")
-# st.write("Assitente de inteligência para documentos!")
-# st.markdown("---")
-
-
-# with st.sidebar:
-
-#     uploaded_pdf = st.file_uploader(
-#         label="Selecione um documento (PDF)",
-#         type="pdf",
-#         accept_multiple_files=False
-#     )
-
+# app.py
 
 import streamlit as st
+from backend import process_pdf, create_vectorstore, build_qa_chain
+import tempfile
+import os
 
-st.set_page_config(
-    page_title="Unimed Chat RAG",
-    page_icon="🤖",
-    layout="wide"
-)
+st.set_page_config(page_title="RAG with Ollama", layout="wide")
+st.title("📄 Chat with PDF using 🦙 Ollama + LangChain + FAISS")
 
-# -------------------- TÍTULO E DESCRIÇÃO --------------------
-st.title("📘 Chat Unimed - Assistente de Documentos")
-st.caption("Um assistente inteligente para responder perguntas com base em documentos da Unimed.")
-
-st.markdown("---")
-
-# -------------------- LAYOUT PRINCIPAL --------------------
-col1 = st.columns([1], gap="large")
-
-# Upload de PDF e parâmetros na coluna lateral
+# Sidebar PDF upload
 with st.sidebar:
-    st.header("📂 Documento")
-    uploaded_pdf = st.file_uploader(
-        label="Envie um documento PDF",
-        type="pdf",
-        accept_multiple_files=False
-    )
+    st.subheader("Upload Document")
+    uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
 
-    st.markdown("---")
-    st.header("⚙️ Parâmetros do Modelo")
-    temperature = st.slider("Temperatura", 0.0, 1.0, 0.2, 0.1)
-    max_tokens = st.slider("Máximo de Tokens", 100, 1000, 500, 50)
+# Load and embed docs
+if uploaded_file:
+    with st.spinner("Processing document..."):
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
+            tmp_file.write(uploaded_file.read())
+            tmp_file_path = tmp_file.name
 
-    st.markdown("---")
-    if uploaded_pdf:
-        st.success("Documento carregado com sucesso!")
-    else:
-        st.info("Aguardando envio de documento...")
+        docs = process_pdf(tmp_file_path)
+        vectorstore = create_vectorstore(docs)
+        qa_chain = build_qa_chain(vectorstore)
 
-# Campo de chat e resposta
+        st.success("Document processed and indexed! Ask your questions below.")
 
-st.subheader("💬 Converse com o assistente")
+        # Chat Interface
+        st.markdown("### 💬 Ask a question about the document")
+        user_input = st.text_input("Your question:", key="user_question")
 
-user_question = st.text_input("Digite sua pergunta:", placeholder="Ex: Quais são as coberturas do plano?")
-
-if st.button("Perguntar"):
-    if uploaded_pdf and user_question:
-        st.info("🔍 Processando sua pergunta com RAG...")
-        # Aqui entraria a chamada para o backend RAG com embeddings
-        # resposta = seu_modelo_rag(resposta)
-        st.success("✅ Resposta gerada com sucesso!")
-        st.write("**Resposta:** Aqui está a resposta simulada baseada no documento.")
-    else:
-        st.warning("Por favor, envie um documento e digite uma pergunta.")
-
-
-
-
-
-
-# Rodapé
-st.markdown("---")
-st.caption("Desenvolvido com ❤️ pela equipe de dados da Unimed")
+        if user_input:
+            with st.spinner("Thinking..."):
+                response = qa_chain.run(user_input)
+                st.write("🧠 Answer:", response)

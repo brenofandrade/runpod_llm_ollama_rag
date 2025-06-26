@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.virtual_documents/
+
 
 # C extensions
 *.so
@@ -192,3 +194,7 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Documents for Knowledge Base
+documents/
+
