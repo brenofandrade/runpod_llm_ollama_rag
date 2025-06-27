@@ -29,7 +29,7 @@ if uploaded_file:
         st.success("Document processed and indexed! Ask your questions below.")
 
         # Chat Interface
-        st.markdown("### 💬 Ask a question about the document")
+        st.markdown("### 💬 Pergunte algo sobre o documento")
         user_input = st.text_input("Your question:", key="user_question")
 
         if user_input:
@@ -41,6 +41,6 @@ if uploaded_file:
                 print("--- "*5)
                 print("Resposta Final:",final_response)
 
-                st.write("🧠 Answer:", response)
+                st.write("🧠 Resposta:", response)
                 st.markdown("---")
                 st.write("Resposta:", final_response)
