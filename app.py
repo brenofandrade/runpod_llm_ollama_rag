@@ -1,23 +1,19 @@
-# app.py
-
 import streamlit as st
-from backend import process_pdf, create_vectorstore, build_qa_chain
 import tempfile
-import os
-
+from backend import process_pdf, create_vectorstore, build_qa_chain
 from helper import extract_answer
 
-st.set_page_config(page_title="RAG with Ollama", layout="wide")
-st.title("📄 Chat with PDF using 🦙 Ollama + LangChain + FAISS")
+st.set_page_config(page_title="chat PDF", page_icon="", layout="wide")
+st.title("📄 Assitente de documentos da UNIMED Blumenau")
 
 # Sidebar PDF upload
 with st.sidebar:
-    st.subheader("Upload Document")
-    uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
+    st.subheader("Upload de Documentos")
+    uploaded_file = st.file_uploader("Escolha um arquivo PDF", type=["txt","pdf"])
 
 # Load and embed docs
 if uploaded_file:
-    with st.spinner("Processing document..."):
+    with st.spinner("Processando documentos..."):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
             tmp_file.write(uploaded_file.read())
             tmp_file_path = tmp_file.name
@@ -26,14 +22,14 @@ if uploaded_file:
         vectorstore = create_vectorstore(docs)
         qa_chain = build_qa_chain(vectorstore)
 
-        st.success("Document processed and indexed! Ask your questions below.")
+        st.success("Documentos processados e indexados! Faça sua pergunta.")
 
         # Chat Interface
         st.markdown("### 💬 Pergunte algo sobre o documento")
-        user_input = st.text_input("Your question:", key="user_question")
+        user_input = st.text_input("Sua pergunta:", key="user_question")
 
         if user_input:
-            with st.spinner("Thinking..."):
+            with st.spinner("Pensando..."):
                 response = qa_chain.invoke(user_input)
                 final_response = extract_answer(response['result'])
 
