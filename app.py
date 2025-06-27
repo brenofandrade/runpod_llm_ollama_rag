@@ -5,6 +5,8 @@ from backend import process_pdf, create_vectorstore, build_qa_chain
 import tempfile
 import os
 
+from helper import extract_answer
+
 st.set_page_config(page_title="RAG with Ollama", layout="wide")
 st.title("📄 Chat with PDF using 🦙 Ollama + LangChain + FAISS")
 
@@ -32,5 +34,13 @@ if uploaded_file:
 
         if user_input:
             with st.spinner("Thinking..."):
-                response = qa_chain.run(user_input)
+                response = qa_chain.invoke(user_input)
+                final_response = extract_answer(response['result'])
+
+                print("Response:",response)
+                print("--- "*5)
+                print("Resposta Final:",final_response)
+
                 st.write("🧠 Answer:", response)
+                st.markdown("---")
+                st.write("Resposta:", final_response)
