@@ -13,6 +13,8 @@ def reset_chat():
         st.session_state["assistant"].clear()
     st.session_state["messages"] = []
     st.session_state["user_input"] = ""
+    if "conversation" in st.session_state:
+        st.session_state["conversation"] = []
 
 # Sidebar PDF upload
 with st.sidebar:
