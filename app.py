@@ -47,10 +47,6 @@ if uploaded_file:
     # Chat Interface
     st.markdown("### 💬 Pergunte algo sobre o documento")
 
-    for q, a in st.session_state.conversation:
-        st.write("**Pergunta:**", q)
-        st.write("**Resposta:**", a)
-        st.markdown("---")
 
     user_input = st.text_input("Sua pergunta:", key="user_question")
 
@@ -61,3 +57,8 @@ if uploaded_file:
 
         st.session_state.conversation.append((user_input, final_response))
         
+
+    for q, a in st.session_state.conversation:
+        st.write("**Pergunta:**", q)
+        st.write("**Resposta:**", a)
+        st.markdown("---")
