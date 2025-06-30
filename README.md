@@ -71,3 +71,9 @@ The app will be accessible from your browser using:
 ```bash
 https://{POD_ID}-{INTERNAL_PORT}.proxy.runpod.net
 ```
+
+### 🔄 Conversational History
+
+The assistant now keeps the history of questions and answers within the same
+session. This allows sending multiple sequential questions about the loaded
+document without losing previous context.
