@@ -6,10 +6,20 @@ from helper import extract_answer
 st.set_page_config(page_title="chat PDF", page_icon="", layout="wide")
 st.title("📄 Assitente de documentos da UNIMED Blumenau")
 
+
+def reset_chat():
+    """Clear conversation history and reset assistant state."""
+    if "assistant" in st.session_state:
+        st.session_state["assistant"].clear()
+    st.session_state["messages"] = []
+    st.session_state["user_input"] = ""
+
 # Sidebar PDF upload
 with st.sidebar:
     st.subheader("Upload de Documentos")
-    uploaded_file = st.file_uploader("Escolha um arquivo PDF", type=["txt","pdf"])
+    uploaded_file = st.file_uploader("Escolha um arquivo PDF", type=["txt","pdf"], accept_multiple_files=True)
+
+    st.button("Reiniciar Chat", on_click=reset_chat, use_container_width=True)
 
 # Load and embed docs
 if uploaded_file:
@@ -43,4 +53,4 @@ if uploaded_file:
             final_response = extract_answer(response['result'])
 
         st.session_state.conversation.append((user_input, final_response))
-        st.experimental_rerun()
+        

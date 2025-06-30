@@ -19,6 +19,8 @@ embeddings = OllamaEmbeddings(model="mxbai-embed-large:latest")
 # Load Ollama model (ensure Ollama is running and llama3 is pulled)
 llm = ChatOllama(model="deepseek-r1:latest", temperature=0.2)
 
+
+
 # Load and split document
 def process_pdf(pdf_path: str):
     loader = PyPDFLoader(pdf_path)
