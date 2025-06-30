@@ -23,14 +23,19 @@ with st.sidebar:
 
 # Load and embed docs
 if uploaded_file:
+    files = uploaded_file if isinstance(uploaded_file, list) else [uploaded_file]
     if "qa_chain" not in st.session_state:
         with st.spinner("Processando documentos..."):
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
-                tmp_file.write(uploaded_file.read())
-                tmp_file_path = tmp_file.name
+            all_docs = []
+            for _file in files:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
+                    tmp_file.write(_file.read())
+                    tmp_file_path = tmp_file.name
 
-            docs = process_pdf(tmp_file_path)
-            vectorstore = create_vectorstore(docs)
+                docs = process_pdf(tmp_file_path)
+                all_docs.extend(docs)
+
+            vectorstore = create_vectorstore(all_docs)
             st.session_state.qa_chain = build_qa_chain(vectorstore)
             st.session_state.conversation = []
 
