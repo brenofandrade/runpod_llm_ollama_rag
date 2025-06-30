@@ -1,5 +1,4 @@
 from langchain_community.vectorstores import Chroma
-# from langchain_community.chat_models import ChatOllama
 from langchain_ollama import ChatOllama
 from langchain_community.embeddings import FastEmbedEmbeddings
 from langchain.schema.output_parser import StrOutputParser
@@ -7,25 +6,27 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.prompts import PromptTemplate
-# from langchain.vectorstores.utils import filter_complex_metadata ## Deprecation WARNING
 from langchain_community.vectorstores.utils import filter_complex_metadata
+from typing import List, Tuple
 
 class ChatPDF:
     vector_store = None
     retriever = None
     chain = None
+    chat_history: List[Tuple[str, str]]
 
     def __init__(self):
         self.model = ChatOllama(model="mistral")
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=100)
+        self.chat_history = []
         self.prompt = PromptTemplate.from_template(
             """
-            <s> [INST] Vous êtes un assistant pour les tâches de réponse aux questions. Utilisez les éléments de contexte suivants pour répondre à la question. 
-            Si vous ne connaissez pas la réponse, dites simplement que vous ne savez pas.. Utilisez trois phrases
-             maximum et soyez concis dans votre réponse. [/INST] </s> 
-            [INST] Question: {question} 
-            Context: {context} 
-            Answer: [/INST]
+            <s> [INST] Você é um assistente de RAG. Utilize o histórico de conversa e o contexto do documento para responder de forma objetiva. Caso não saiba a resposta, informe que não sabe. [/INST] </s>
+            Histórico:
+            {history}
+            [INST] Pergunta: {question}
+            Contexto: {context}
+            Resposta: [/INST]
             """
         )
 
@@ -43,7 +44,11 @@ class ChatPDF:
             },
         )
 
-        self.chain = ({"context": self.retriever, "question": RunnablePassthrough()}
+        self.chain = ({
+            "context": self.retriever,
+            "question": RunnablePassthrough(),
+            "history": lambda x: x.get("history", ""),
+        }
                       | self.prompt
                       | self.model
                       | StrOutputParser())
@@ -52,9 +57,16 @@ class ChatPDF:
         if not self.chain:
             return "Please, add a PDF document first."
 
-        return self.chain.invoke(query)
+        history_text = ""
+        for q, a in self.chat_history:
+            history_text += f"Usuário: {q}\nAssistente: {a}\n"
+
+        answer = self.chain.invoke({"question": query, "history": history_text})
+        self.chat_history.append((query, answer))
+        return answer
 
     def clear(self):
         self.vector_store = None
         self.retriever = None
         self.chain = None
+        self.chat_history = []
