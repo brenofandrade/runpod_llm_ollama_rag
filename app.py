@@ -13,30 +13,34 @@ with st.sidebar:
 
 # Load and embed docs
 if uploaded_file:
-    with st.spinner("Processando documentos..."):
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
-            tmp_file.write(uploaded_file.read())
-            tmp_file_path = tmp_file.name
+    if "qa_chain" not in st.session_state:
+        with st.spinner("Processando documentos..."):
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
+                tmp_file.write(uploaded_file.read())
+                tmp_file_path = tmp_file.name
 
-        docs = process_pdf(tmp_file_path)
-        vectorstore = create_vectorstore(docs)
-        qa_chain = build_qa_chain(vectorstore)
+            docs = process_pdf(tmp_file_path)
+            vectorstore = create_vectorstore(docs)
+            st.session_state.qa_chain = build_qa_chain(vectorstore)
+            st.session_state.conversation = []
 
-        st.success("Documentos processados e indexados! Faça sua pergunta.")
+    qa_chain = st.session_state.qa_chain
+    st.success("Documentos processados e indexados! Faça sua pergunta.")
 
-        # Chat Interface
-        st.markdown("### 💬 Pergunte algo sobre o documento")
-        user_input = st.text_input("Sua pergunta:", key="user_question")
+    # Chat Interface
+    st.markdown("### 💬 Pergunte algo sobre o documento")
 
-        if user_input:
-            with st.spinner("Pensando..."):
-                response = qa_chain.invoke(user_input)
-                final_response = extract_answer(response['result'])
+    for q, a in st.session_state.conversation:
+        st.write("**Pergunta:**", q)
+        st.write("**Resposta:**", a)
+        st.markdown("---")
 
-                print("Response:",response)
-                print("--- "*5)
-                print("Resposta Final:",final_response)
+    user_input = st.text_input("Sua pergunta:", key="user_question")
 
-                st.write("🧠 Resposta:", response)
-                st.markdown("---")
-                st.write("Resposta:", final_response)
+    if user_input:
+        with st.spinner("Pensando..."):
+            response = qa_chain.invoke(user_input)
+            final_response = extract_answer(response['result'])
+
+        st.session_state.conversation.append((user_input, final_response))
+        st.experimental_rerun()
