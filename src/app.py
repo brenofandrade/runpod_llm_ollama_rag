@@ -1,7 +1,7 @@
 import streamlit as st
 import tempfile
-from backend import process_pdf, create_vectorstore, build_qa_chain
-from helper import extract_answer
+from src.backend import process_pdf, create_vectorstore, build_qa_chain, extract_answer
+
 
 st.set_page_config(page_title="chat PDF", page_icon="", layout="wide")
 st.title("📄 Assitente de documentos da UNIMED Blumenau")
@@ -62,3 +62,9 @@ if uploaded_file:
         st.write("**Pergunta:**", q)
         st.write("**Resposta:**", a)
         st.markdown("---")
+
+else:
+    reset_chat()
+
+    with st.sidebar:
+        st.write("Nenhum documento.")

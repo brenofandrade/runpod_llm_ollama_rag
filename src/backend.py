@@ -13,6 +13,15 @@ from langchain.chains import RetrievalQA
 import os
 from typing import List
 
+import re
+
+
+def extract_answer(text:str) -> str:
+    """
+    
+    """
+    return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+
 # Initialize embedding model
 # embeddings = HuggingFaceEmbeddings(model_name="nomic-ai/nomic-embed-text-v1")
 embeddings = OllamaEmbeddings(model="mxbai-embed-large:latest")
