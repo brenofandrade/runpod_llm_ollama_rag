@@ -1,6 +1,5 @@
 langchain==0.3.26
-langchain_community==0.0.33
-langchain-openai==0.1.5
+langchain_community==0.3.26
 scikit-learn==1.4.2
 langchain-ollama==0.3.3
 pypdf==5.6.1
