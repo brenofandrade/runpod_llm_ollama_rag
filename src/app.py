@@ -1,6 +1,6 @@
 import streamlit as st
 import tempfile
-from src.backend import process_pdf, create_vectorstore, build_qa_chain, extract_answer
+from backend import process_pdf, create_vectorstore, build_qa_chain, extract_answer
 
 
 st.set_page_config(page_title="chat PDF", page_icon="", layout="wide")
