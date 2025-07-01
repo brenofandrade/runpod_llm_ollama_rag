@@ -60,6 +60,15 @@ streamlit run app.py \
   --server.enableWebsocketCompression false
 ```
 
+### 5. Build and run with Docker
+
+To build the Docker image and start the container locally:
+
+```bash
+docker build -t rag-assistant .
+docker run -p 7860:7860 rag-assistant
+```
+
 ---
 
 ### 🧠 Notes:
